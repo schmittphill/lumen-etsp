@@ -1,0 +1,31 @@
+FROM ubuntu
+#FROM alpine:3.13
+
+RUN apt-get update -y && apt-get install -y wget
+
+# for laravel lumen run smoothly
+#RUN apt-get install php php-fpm php-pdo php-mbstring php-openssl
+RUN apt-get install -y php
+
+# for our code run smoothly
+RUN apt-get install -y php-json php-dom curl php-curl
+
+# for swagger run smoothly
+RUN apt-get install -y php-tokenizer unzip
+
+# for composer & our project depency run smoothly
+RUN apt-get install -y php-phar php-xml php-xmlwriter
+
+# if need composer to update plugin / vendor used
+RUN php -r "copy('http://getcomposer.org/installer', 'composer-setup.php');" && \
+php composer-setup.php --install-dir=/usr/bin --filename=composer && \
+php -r "unlink('composer-setup.php');"
+
+# copy all of the file in folder to /src
+COPY . /src
+WORKDIR /src 
+
+RUN composer update 
+
+RUN chown -R www-data:www-data ./ \
+    && chmod -R 775 ./storage
